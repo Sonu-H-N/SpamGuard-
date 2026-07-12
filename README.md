@@ -1,312 +1,165 @@
-# 🛡️ SpamGuard
+# 🛡️ SpamGuard — Client-Side Email Spam Classifier
 
-**SpamGuard** is a client-side email spam classification web application that uses the **Naive Bayes algorithm** to identify whether a given email or message is **Spam** or **Not Spam (Ham)**.
-
-The application performs spam classification directly in the user's browser, providing a fast, lightweight, and privacy-friendly experience without requiring a backend server.
+> Multinomial Naive Bayes spam detection running **100% in your browser**.  
+> No server. No API. No data leaves your device. Ever.
 
 ---
 
-## 📌 Project Overview
+## 🚀 How to Run
 
-Spam emails are one of the most common problems in digital communication. They may contain advertisements, misleading offers, phishing messages, or unwanted content.
+**Just open `index.html` in any browser. That's it.**
 
-**SpamGuard** analyzes the text entered by the user and predicts whether the message is spam using a **Naive Bayes-based classification approach**.
+```
+Double-click index.html
+```
 
-Since the application works on the client side, the message text does not need to be sent to an external server for classification.
+Works offline. No install. No build step. No dependencies.
+
+---
+
+## 📁 Files
+
+```
+spamguard/
+├── index.html       ← Full SPA — 5 views, all UI markup
+├── style.css        ← Complete dark theme design system
+├── classifier.js    ← Naive Bayes engine + 200+ training docs
+├── app.js           ← All UI logic, gauge, particles, views
+└── README.md
+```
 
 ---
 
 ## ✨ Features
 
-* 🛡️ Spam and Ham email classification
-* 🧠 Naive Bayes-based prediction
-* ⚡ Instant spam detection
-* 🔒 Client-side processing
-* 🌐 No backend server required
-* 📧 Email and message text analysis
-* 📊 Spam probability or confidence display
-* 🎨 Clean and modern user interface
-* 📱 Responsive design
-* 🚀 Lightweight and fast
-* 🔄 Easy message reset and reclassification
-* 💻 Works directly in the browser
+### 🔍 Classify View
+- Paste subject, sender, and body — classifier analyses all three
+- **Live classification** as you type (400ms debounce)
+- **Radar sweep gauge** — animated arc fills with spam probability
+- Real-time probability bars (Spam % vs Ham %)
+- Colour-coded verdict cards with confidence levels
+- **Signal word chips** — top words driving the decision
+- Full classification breakdown (log-scores, priors, token count)
+- Load spam / ham example emails
+- Copy classification report to clipboard
+- **Feedback buttons** — mark correct or teach the model
+
+### 🧠 Train View
+- Add any labelled email (spam or ham) to improve accuracy
+- **Bulk import CSV** — `label,subject,body` format
+- View all custom additions in session
+- Export training set as CSV
+- Reset custom data (built-in data preserved)
+
+### 📊 Stats View
+- Live vocabulary size, doc counts, session stats
+- **Word clouds** for top spam and ham words
+- **Confusion matrix** — TP, FP, FN, TN from your session
+- Prior probability bars
+- Most discriminative words with spam/ham ratios
+
+### 📋 History View
+- Every email classified this session
+- Filter by spam/ham, search by text
+- Click any item to reload it in the classifier
+- Export full history as CSV
+
+### 📖 How It Works View
+- Full explanation of Naive Bayes with math
+- Laplace smoothing formula
+- Log-probability explanation
+- Text preprocessing pipeline
+- Privacy guarantee
 
 ---
 
-## 🧠 How It Works
+## 🧮 The Algorithm
 
-SpamGuard uses the **Naive Bayes classification algorithm**, a probabilistic machine learning technique commonly used for text classification.
+### Multinomial Naive Bayes
 
-The application follows these main steps:
+Given an email with words w₁, w₂, …, wₙ:
 
-1. The user enters an email or message.
-2. The text is converted to lowercase.
-3. Unnecessary symbols and punctuation are removed.
-4. The message is split into individual words or tokens.
-5. Word frequencies and probabilities are analyzed.
-6. Spam and Ham probabilities are calculated.
-7. The class with the highest probability is selected.
-8. The final prediction is displayed to the user.
-
----
-
-## 🔬 Naive Bayes Algorithm
-
-Naive Bayes is based on **Bayes' Theorem** and assumes that features are conditionally independent.
-
-The classifier calculates the probability of a message belonging to a particular class.
-
-### Spam Classification
-
-`P(Spam | Message) ∝ P(Spam) × P(W₁ | Spam) × P(W₂ | Spam) × ... × P(Wₙ | Spam)`
-
-### Ham Classification
-
-`P(Ham | Message) ∝ P(Ham) × P(W₁ | Ham) × P(W₂ | Ham) × ... × P(Wₙ | Ham)`
-
-Where:
-
-* `P(Spam)` = Prior probability of spam messages
-* `P(Ham)` = Prior probability of legitimate messages
-* `P(W | Spam)` = Probability of a word appearing in spam
-* `P(W | Ham)` = Probability of a word appearing in legitimate messages
-
-The message is classified based on the class with the highest calculated probability.
-
----
-
-## 🛠️ Technologies Used
-
-* **HTML5** — Application structure
-* **CSS3** — Styling and responsive design
-* **JavaScript** — Application logic
-* **Naive Bayes Algorithm** — Spam classification
-* **Natural Language Processing Concepts** — Text preprocessing and tokenization
-* **Local Browser Processing** — Client-side prediction
-
----
-
-## 📂 Project Structure
-
-```text
-SpamGuard/
-│
-├── index.html
-├── style.css
-├── script.js
-├── README.md
-│
-└── assets/
-    └── images/
+```
+P(Spam | Email) ∝ P(Spam) × ∏ P(wᵢ | Spam)
+P(Ham  | Email) ∝ P(Ham)  × ∏ P(wᵢ | Ham)
 ```
 
-### File Description
+The class with the higher posterior probability wins.
 
-| File         | Description                                        |
-| ------------ | -------------------------------------------------- |
-| `index.html` | Contains the main application structure            |
-| `style.css`  | Handles UI design and responsive layout            |
-| `script.js`  | Contains spam classification and Naive Bayes logic |
-| `README.md`  | Project documentation                              |
-| `assets/`    | Stores project images and other resources          |
+### Laplace Smoothing (α = 1)
 
----
+Prevents zero-probability for unseen words:
 
-## 🚀 Getting Started
-
-### 1. Clone the Repository
-
-```bash
-git clone YOUR_REPOSITORY_URL
+```
+P(wᵢ | class) = (count(wᵢ, class) + 1) / (N_class + |V|)
 ```
 
-### 2. Open the Project Folder
+### Log Probabilities
 
-```bash
-cd SpamGuard
+Prevents numerical underflow from multiplying tiny numbers:
+
+```
+log P(class | Email) = log P(class) + Σ log P(wᵢ | class)
 ```
 
-### 3. Run the Application
-
-Open the `index.html` file in your web browser.
-
-No additional packages, dependencies, or backend server are required.
+Converted back to probabilities via softmax.
 
 ---
 
-## 💻 Usage
+## 📦 Training Data
 
-1. Open the SpamGuard application.
-2. Enter or paste an email message into the text area.
-3. Click the **Check Spam** or **Analyze Message** button.
-4. SpamGuard processes the message.
-5. The prediction result is displayed as:
+Built-in dataset covers:
 
-   * 🚨 **Spam**
-   * ✅ **Not Spam / Ham**
-6. Clear the message to analyze another email.
+| Category | Examples |
+|----------|----------|
+| Prize / Lottery spam | "You've won $1,000,000!" |
+| Pharma spam | Cheap meds, weight loss |
+| Phishing | Bank/PayPal/Apple alerts |
+| Nigerian advance-fee | Transfer funds |
+| Crypto / Investment | Bitcoin giveaways |
+| Work-from-home MLM | Earn money fast |
+| Professional Ham | Meeting notes, reports |
+| Personal Ham | Friends, family |
+| Transactional Ham | Order confirmations |
+| System Ham | CI/CD, server alerts |
+
+**~200 built-in emails** + unlimited custom training.
 
 ---
 
-## 📧 Example Messages
+## 🔒 Privacy
 
-### Spam Example
+- **Zero server communication** — classifier runs in JS
+- **No tracking, no analytics, no cookies**
+- Custom training data stored in `localStorage` only
+- Works fully offline after first load (fonts may not load)
 
-```text
-Congratulations! You have won a FREE cash prize.
-Click now to claim your reward.
+---
+
+## ⌨️ Keyboard Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl + Enter` | Classify email |
+| `Ctrl + K` | Clear input |
+
+---
+
+## 🛠 Extending
+
+### Add more training data
+Edit `BUILTIN_TRAINING` in `classifier.js`:
+```javascript
+[1, "spam email text here"],   // 1 = spam
+[0, "legitimate email here"],  // 0 = ham
 ```
 
-**Prediction:** 🚨 Spam
+### Change smoothing parameter
+In `classifier.js`, find `this.alpha = 1` and adjust.
 
-### Ham Example
-
-```text
-Hello, the project meeting is scheduled for tomorrow at 10 AM.
-Please bring the required documents.
-```
-
-**Prediction:** ✅ Not Spam / Ham
+### Add new preprocessing
+Edit the `tokenise()` function in `classifier.js`.
 
 ---
 
-## 🔐 Privacy
-
-SpamGuard is designed with privacy in mind.
-
-The email or message entered by the user is processed directly inside the browser. The application does not require the message to be uploaded to a remote server for classification.
-
-This client-side approach helps keep user-entered content private.
-
----
-
-## 🎯 Applications
-
-SpamGuard can be useful for:
-
-* Email spam detection
-* SMS spam classification
-* Message filtering
-* Machine learning demonstrations
-* Natural Language Processing projects
-* College mini projects
-* Educational applications
-* Client-side AI experiments
-
----
-
-## 📊 Advantages
-
-* Fast spam prediction
-* Simple and lightweight architecture
-* No server dependency
-* Privacy-friendly processing
-* Easy to understand and modify
-* Suitable for beginners learning machine learning
-* Can be deployed as a static website
-
----
-
-## ⚠️ Limitations
-
-* Classification accuracy depends on the training data and word probabilities.
-* The classifier may not detect complex phishing techniques.
-* New or unseen spam words may affect prediction accuracy.
-* Naive Bayes assumes independence between words.
-* The client-side model may be smaller than production-level spam detection systems.
-
----
-
-## 🔮 Future Enhancements
-
-* 📂 CSV dataset training support
-* 📈 Model accuracy visualization
-* 📊 Spam probability graph
-* 🧹 Advanced text preprocessing
-* 📝 Stop-word removal
-* 🔤 Stemming and lemmatization
-* 🌍 Multi-language spam detection
-* 📎 Suspicious URL detection
-* 🎣 Phishing email detection
-* 📧 Email header analysis
-* 💾 Local model storage
-* 🌙 Dark and light mode
-* 📱 Progressive Web App support
-* 🤖 Advanced machine learning model integration
-
----
-
-## 🌐 Deployment
-
-SpamGuard can be easily deployed using static website hosting services.
-
-For GitHub Pages:
-
-1. Push the project to GitHub.
-2. Open the repository.
-3. Go to **Settings**.
-4. Select **Pages**.
-5. Under **Build and deployment**, select **Deploy from a branch**.
-6. Select the `main` branch.
-7. Select the `/root` folder.
-8. Click **Save**.
-
-The SpamGuard application will be available through the generated GitHub Pages link.
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome.
-
-You can contribute by:
-
-* Improving the spam classification algorithm
-* Adding new spam keywords or training data
-* Enhancing the user interface
-* Fixing bugs
-* Improving documentation
-* Adding new machine learning features
-
-### Contribution Steps
-
-```bash
-git fork
-git clone YOUR_FORK_URL
-git checkout -b feature-name
-git commit -m "Add new feature"
-git push origin feature-name
-```
-
-Then create a Pull Request.
-
----
-
-## 📜 License
-
-This project is intended for educational and learning purposes.
-
-You may modify and use the project according to your requirements.
-
----
-
-## 👨‍💻 Author
-
-**Suhas H N**
-
-B.E. Electronics and Communication Engineering Student
-Aspiring Full Stack Developer
-
----
-
-## ⭐ Support
-
-If you like this project, consider giving the repository a ⭐ on GitHub.
-
-Your support helps motivate further improvements and new projects.
-
----
-
-## 🛡️ SpamGuard
-
-**Detect Spam. Protect Your Inbox. Stay Secure.**
+*SpamGuard · Pure HTML + CSS + Vanilla JS · No framework · No build tools*
